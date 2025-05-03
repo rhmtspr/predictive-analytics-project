@@ -147,6 +147,7 @@ Berikut hasil accuracy 4 buah model yang dikembangkan pada proyek ini:
 | KNN | 0.885 |
 | Random Forest | 0.975 |
 
+[Hasil Skor Akurasi](images/accuracy_scores.png)
 Tabel 3. Hasil Akurasi
 
 Berdasarkan hasil pengujian pada empat algoritma klasifikasi pada tabel 3 di atas, diketahui bahwa model dengan akurasi tertinggi adalah Random Forest dengan nilai akurasi sebesar 0.975 atau 9.75%. Disusul oleh Naive Bayes dan SVM yang masing-masign mencatatkan akurasi sebesar 93%, serta KNN dengan akurasi 88.5%.<br>
