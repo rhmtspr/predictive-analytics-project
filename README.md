@@ -27,8 +27,8 @@ Tujuan dari proyek ini antara lain adalah sebagai berikut:
 - Dalam proyek ini, beberapa model machine learning dibuat untuk membandingkan dan menentukan model mana yang paling tepat digunakan dalam prediksi kualitas buah anggur. Beberapa metode yang digunakan antara lain:
     - Naive Bayes<br>
       Naive Bayes adalah metode klasifikasi berdasarkan Teorema Bayes dengan asumsi bahwa setiap fitur bersifat independen. Meskipun asumsi ini jarang terpenuhi sepenuhnya dalam kenyataan, model ini tetap efektif dan banyak digunakan, terutama untuk teks atau data kategorikal.
-    - Support Vector Machine (SVM)<br>
-      SVM adalah algoritma klasifikasi yang bekerja dengan mencari hyperplane terbaik yang memisahkan data ke dalam dua kelas secara optimal. Dalam implementasinya, SVM bisa digunakan untuk klasifikasi linear maupun non-linear menggunakan kernel trick.
+    - Support Vector Classifier (SVC)<br>
+      SVC adalah algoritma yang mencari hyperplane terbaik yang memisahkan data ke dalam kelas yang berbeda. Tujuan utama SVC adalah memasimalkan margin antara hyperplane dan titik data terdekat dari setiap kelas (support vectors). SVC dapat bekerja dengan data yang tidak dapat dipisahkan secara linear menggunakan kernel trick.
     - K-Nearest Neighbor (KNN)<br>
       KNN adalah algoritma yang digunakan untuk klasifikasi dan regresi, dengan cara membandingkan data baru dengan sejumlah data terdekat di sekitarnya (tetangga terdekat). Model ini tidak membangun fungsi prediksi secara eksplisit, melainkan menyimpan semua data pelatihan dan mengklasifikasikan berdasarkan mayoritas label dari tetangganya.
     - Random Forest<br>
@@ -38,6 +38,7 @@ Tujuan dari proyek ini antara lain adalah sebagai berikut:
 Paragraf awal bagian ini menjelaskan informasi mengenai data yang Anda gunakan dalam proyek. Sertakan juga sumber atau tautan untuk mengunduh dataset. Contoh: [UCI Machine Learning Repository](https://archive.ics.uci.edu/ml/datasets/Restaurant+%26+consumer+data).
 **Informasi tentang dataset**
 | Kategori | Keterangan |
+| ----- | ----- |
 | Nama Dataset | Grape Quality |
 | Sumber | [Kaggle.com](https://www.kaggle.com/datasets/mrmars1010/grape-quality) |
 | Pemilik | [Mars_1010](https://www.kaggle.com/mrmars1010) |
@@ -45,6 +46,12 @@ Paragraf awal bagian ini menjelaskan informasi mengenai data yang Anda gunakan d
 | Visibilitas | Publik |
 | Tag | food |
 | Skor Usibilitas | 10.00 |
+
+### Jumlah Data:
+Pada dataset Grape Quality ini terdapat sebanyak 1000 baris dan 13 kolom.
+
+### Kondisi Data:
+Dataset ini cukup bersih, tidak ditemukan baik itu data yang hilang, duplikat data ataupun outlier.
 
 ### Variabel-variabel pada Grape Quality Dataset adalah sebagai berikut:
 - sample_id: Nomor unik untuk setiap sampel anggur. Seperti nomor identitas untuk membedakan satu sampel dengan lainnya.
@@ -55,77 +62,69 @@ Paragraf awal bagian ini menjelaskan informasi mengenai data yang Anda gunakan d
 - sugar_content_brix: Tingkat rasa manis anggur, diukur dalam satuan Brix (°Bx). Semakin tinggi Brix, semakin manis anggurnya.
 - acidity_ph: Tingkat keasaman anggur. pH < 7 berarti asam. semakin rendah pH, semakin asam rasa anggurnya.
 - cluster_weight_g: Berat satu tandan (sekumpulan) buah anggur, dalam satuan gram.
+- berry_size_mm: Ukuran satu butir anggur, diukur dalam milimeter (mm).
 - harvest_date: Tanggal kapan anggur dipanen. Waktu panen bisa mempengaruhi rasa manis, asam, dan kualitas keseluruhan.
 - sun_exposure_hours: Total jumlah jam anggur terkena sinar matahari. Sinar matahari membantu anggur matang dengan baik.
 - soil_moisture_percent: Persentase kadar air dalam tempat anggur tumbuh. Ini mempengaruhi pertumbuhan dan rasa buah.
 - rainfall_mm: Jumlah curah hujan (dalam milimeter) yang diterima kebun anggur selama masa tumbuh.
 
-### Exploratory Data Analysis - Univariate Analysis
-
-[Visualisasi Univariat (Data Kategori)](images/quality_category_img.png)
-Gambar 1. Visualisasi Analisis Univariat (Data Kategori)
-
-Pada gambar 1 di atas, dapat diketahui bahwa pada fitur quality_category kategori kualitas yang terbanyak adalah Medium, diikuti High dan untuk Premium dan Low sangat sedikit, jumlahnya jauh berbeda, yaitu kurang dari 100 data.
-
-### Exploratory Data Analysis - Multivariate Analysis
-[Visualisi Matriks Korelasi](images/confusion_matrix.png)
-Gambar 2. Matriks Korelasi
-
-Pada gambar 2 di atas, terlihat bahwa terdapat korelasi yang cukup besar pada quality score dengan sugar_content_brix sebesar 0.69, berry_size_mm sebesar 0.48 dan sun_exposure_hours sebesar 0.54.
-
 ## Data Preparation
 Tahapan data preparation atau persiapan data merupakan proses penting sebelum membangun model machine learning. Tujuan utamanya adalah memastikan data dalam kondisi bersih, konsisten, dan sesuai untuk dianalisis, sehingga model yang dibangun dapat menghasilkan prediksi yang akurat dan andal. Berikut adalah tahapan data preparation yang dilakukan dalam proyek ini:
+1. Encoding Fitur-Fitur Kategori<br>
+Pada langkah ini saya melakukan konversi fitur-fitur kategori menjadi angka agar bisa digunakan untuk pelatihan model machine learning. Saya menggunakan teknik one-hot encoding dengan menggunakan fungsi get_dummies(). Hal ini penting dilakukan karena:
+    - Cocok untuk data kategori tanpa urutan, sehingga model tidak salah mengintrepretasikan hubungan antar kategori.
+    - Menghindari kehilangan informasi yang bisa terjadi jika menggunakan label encoding.
+2. Drop fitur-fitur yang tidak relevan<br>
+    Pada langkah ini saya menghapus 3 fitur dari dataset, adalah sebagai berikut: quality_category, sample_id, harvest_date.<br>
+    Saya menghapus ketiga fitur di atas karena memang tidak relevan dan tidak saya gunakan untuk pelatihan model machine learning.
+    Langkah ini penting dilakukan dengan tujuan antara lain:
+    - Menghindari model belajar dari data yang tidak penting
+    - Mencegah model menjadi terlalu rumit dengan fitur yant tidak relevan.
+    - Mengurangi wkatu komputasi dan memori yang dibutuhkan.
+3. Melakukan pembagian data latih dan data uji (Train-Test-Split)<br>
+Pada langkah ini saya menggunakan fungsi train_test_split() untuk membagi dataset menjadi data latih dan data uji. Dengan data latih sebesar 80% dan data uji 20%. Langkah ini diperlukan untuk mengevaluasi kinerja model secara akurat. Dengan membagi dataset menjadi data latih (80%) dan data uji (20%), kita bisa memastikan model belajar pola yang benar dan mampu bekerja dengan baik pada data baru, bukan hanya data yang sudah dilatih. Ini juga membantu mencegah overfitting dan memastikan hasil yang lebih reliable sesuai dengan studi kasus di dalam proyek ini.
+4. Standarisasi Data Latih<br>
+Pada langkah ini saya melakukan standarisasi pada fitur numerik di dalam data latih (X_train) menggunakan StandardScaler(). Fitur-fitur yang distandarisasi ini bisa membantu model untuk belajar dengan lebih baik dan lebih cepat dengan menyamakan skala semua fitur. Selain itu, langkah ini juga memastikan bahwa model tidak bias terhadap fitur dengan skala lebih besar, sehingga fitur setiap fitur berkontribusi secara proposional dalam membuat prediksi.
 
-1. Data Loading<br>
-   Pada tahap ini, data diimpor dan dimuat ke dalam lingkungan kerja (Google Colab notebook) menggunakan pustaka (library) seperti pandas. Proses ini penting sebagai langkah awal agar data dapat diakses dan diolah lebih lanjut dalam proyek.
-2. Data Assessing<br>
-    Tahap ini dilakukan untu mengetahui kondisi awal dari dataset. Beberapa pengecekan yang dilakukan meliputi:
-    - Pengecekan nilai kosong<br>Untuk memastikan tidak ada data yang hilang yang dapat mengganggu proses pelatihan model.
-    - Pengecekan duplikasi<br>Untuk menghindari adanya baris data ganda yang dapat membuat model bias.
-    - Pemeriksaan outlier<br>Untuk melihat apakah ada data ekstrem yang dapat memengaruhi distribusi dan hasil prediksi.
-    Hasil yang diperoleh dari tahapan ini:<br>
-    Setelah dilakukan pemeriksaan, tidak ditemukan nilai kosong, duplikat, maupun outlier. Hal ini menunjukkan bahwa dataset yang digunakan sudah cuup bersih dan siap untuk tahap selanjutnya.
-3. Data Cleaning & Transformation
-    Setelah data dinyatakan bersih, dilakukan beberapa langkah lanjutan untuk mempersiapkan data agar optimal dalam pelatihan model:
-    - Encoding Fitur Kategori:
-      Proses ini dilakukan untuk mengubah fitur kategori menjadi format numerik. teknik encoding yang digunakan adalah one-hot-encoding. Teknik ini digunakan agar model dapat memproses data kategorical dengan lebih baik, karena model machine learning umumnya hanya dapat bekerja dengan data numerik. 
-    - Split dataset:
-      Dataset dibagi menjadi dua bagian, yaitu 80% untuk data latih dan 20% untuk uji. Hal ini bertujuan untuk mengevaluasi performa model pada data yang belum pernah dilihat sebelumnya.
-    - Standardisasi Fitur<br>
-      Fitur numerik distandardisasi agar memiliki rata-rata = 0 dan standar deviasi = 1 menggunakan teknik StandardScaler. Ini penting karena beberapa algoritma machine learning (seperti SVM dan KNN) sangat sensitif terhadapa skala data.
-
-## Modeling
-Pada proyek ini terdapat 4 algoritma yang akan digunakan, yaitu:
+## Model Development
+Pada proyek ini terdapat 4 algoritma yang digunakan, yaitu:
 1. Naive Bayes<br>
-   - Kelebihan:<br>
-     - Proses pelatihan dan prediksi sangat cepat, cocok untuk dataset besar.
-     - Mudah untuk dipahami dan diimplementasikan.
-   - Kekurangan:<br>
-     - Tidak fleksibel terhadap data numerik yang kompleks atau tidak terdistribusi dengan normal.
-     - Asumsi independensi antar fitur sering kali tidak realistis dan dapat menurunkan akurasi.
-2. Support Vector Machine (SVM)<br>
-   - Kelebihan:<br>
-     - Sangat efektif pada data berdimensi tinggi (banyak fitur).
-     - Dapat menangani hubungan non-linear melalui berbagai jenis kernel. 
-   - Kekurangan:<br>
-     - Komputasi bisa sangat lambat untuk dataset besar.
-     - Pemilihan kernel dan parameter tuning bisa cukup kompleks.
-3. K-Nearest Neighbors (KNN)<br>
-   - Kelebihan:<br>
-     - termasuk algoritma yang sederhana dan mudah dipahami, cocok untuk pemula yang baru belajar machine learning.
-     - Dapat digunakan untuk klasifikasi dan regresi.
-   - Kekurangan:<br>
-     - sangat sensitif terhadap skala data dan outlier; butuh normalisasi
-     - Prediksi bisa lambat karena harus menghitung jarak ke semua data pelatihan.
-4. Random Forest<br>
-   - Kelebihan:<br>
-     - Akurasi tinggi dan kuat terhadap overfitting dibandingkan decision tree tunggal.
-     - Dapat digunakan untuk klasifikasi, regresi dan estimasi fitur penting.
-   - Kekurangan:<br>
-     - Model lebih kompleks dan besar, memakan lebih banyak memori dan waktu.
-     - Interpretasi hasil lebih sulit dibandingkan model pohon tunggal.
+Naive Bayes adalah algoritma klasifikasi berbasis teori probabilitas Bayes dengan asumsi bahwa setiap fitur yang terdapat di dalam data bersifat independen satu sama lain (naive). Algoritma ini menghitung probabilitas setiap kelas untuk data yang diberikan dan memilih kelas dengan probabilitas tertinggi sebagai prediksi. Parameter yang saya gunakan adalah parameter default.
+     - Kelebihan:<br>
+        - Proses pelatihan dan prediksi sangat cepat, cocok untuk dataset besar.
+        - Mudah untuk dipahami dan diimplementasikan.
+    - Kekurangan:<br>
+        - Tidak fleksibel terhadap data numerik yang kompleks atau tidak terdistribusi dengan normal.
+        - Asumsi independensi antar fitur sering kali tidak realistis dan dapat menurunkan akurasi.
 
-## Evaluation
+2. Support Vector Classifier (SVC)<br>
+SVC adalah algoritma yang mencari hyperplane terbaik yang memisahkan data ke dalam kelas yang berbeda. Tujuan utama SVC adalah memasimalkan margin antara hyperplane dan titik data terdekat dari setiap kelas (support vectors). SVC dapat bekerja dengan data yang tidak dapat dipisahkan secara linear menggunakan kernel trick.
+    - Kelebihan:<br>
+        - Sangat efektif pada data berdimensi tinggi (banyak fitur).
+        - Dapat menangani hubungan non-linear melalui berbagai jenis kernel. 
+    - Kekurangan:<br>
+        - Komputasi bisa sangat lambat untuk dataset besar.
+        - Pemilihan kernel dan parameter tuning bisa cukup kompleks.
+
+3. K-Nearest Neighbors (KNN)<br>
+KNN adalah algoritma berbasis instance yang mengklasifikasikan titik data baru berdasarkan kelas mayoritas dari K tetangga terdekat. Algoritma ini menghitung jarak antara titik yang akan diklasifikasikan dengan titik-titik dalam data pelatihan, biasanya menggunakan jarak Euclidean. Pada model ini terdapat dua parameter yang saya gunakan. Pertama adalah n_neighbors yaitu jumlah tetangga terdekat untuk voting dengan nilai 5 dab weights dengan nilai "distance" yang berarti tetangga atau neighbor yang lebih dekat akan memiliki bobot lebih tinggi dalam voting, sehingga lebih berpengaruh pada prediksi, untuk parameter lainnya tetap default.
+    - Kelebihan:<br>
+        - termasuk algoritma yang sederhana dan mudah dipahami, cocok untuk pemula yang baru belajar machine learning.
+        - Dapat digunakan untuk klasifikasi dan regresi.
+    - Kekurangan:<br>
+        - sangat sensitif terhadap skala data dan outlier; butuh normalisasi
+        - Prediksi bisa lambat karena harus menghitung jarak ke semua data pelatihan.
+
+4. Random Forest<br>
+Random Forest adalah algoritma ensemble yang menggabungkan bnayak pohon keputusan (decision trees) secara acak dan menggabungkan hasilanya untuk membuat prediksi yang lebih akurat dan stabil. Algoritma ini menggunakan teknik bootstrap aggregation (bagging) untuk mengurangi overfitting. Pada model ini parameter yang saya gunakan adalah n_estimators dengan nilai 20, parameter lainnya default. 
+    - Kelebihan:<br>
+        - Akurasi tinggi dan kuat terhadap overfitting dibandingkan decision tree tunggal.
+        - Dapat digunakan untuk klasifikasi, regresi dan estimasi fitur penting.
+    - Kekurangan:<br>
+        - Model lebih kompleks dan besar, memakan lebih banyak memori dan waktu.
+        - Interpretasi hasil lebih sulit dibandingkan model pohon tunggal.
+
+## Evaluasi Model
 Pada tahap evaluasi model, digunakan metrik akurasi (accuracy) sebagai ukuran kinerja. akurasi dihitung dengan menentukan persentase jumlah prediksi yang tepat dibandingkan dengan total keseluruhan prediksi yang dilakukan. Rumus yang digunakan adalah:
 
 $$\text{Akurasi} = \frac{\text{TP + TN}}{\text{TN + TP + FN + FP}} \times 100\%$$
@@ -145,24 +144,29 @@ Berikut hasil accuracy 4 buah model yang dikembangkan pada proyek ini:
 | Naive Bayes | 0.93 |
 | SVM | 0.93 |
 | KNN | 0.885 |
-| Random Forest | 0.975 |
+| Random Forest | 0.955 |
 
-[Hasil Skor Akurasi](images/accuracy_scores.png)
+![Hasil Skor Akurasi](images/accuracy_scores.png)
 Tabel 3. Hasil Akurasi
 
 Berdasarkan hasil pengujian pada empat algoritma klasifikasi pada tabel 3 di atas, diketahui bahwa model dengan akurasi tertinggi adalah Random Forest dengan nilai akurasi sebesar 0.975 atau 9.75%. Disusul oleh Naive Bayes dan SVM yang masing-masign mencatatkan akurasi sebesar 93%, serta KNN dengan akurasi 88.5%.<br>
 Melihat perbandingan tersebut, Random Forest menjadi pilihan terbaik untuk digunakan dalam proyek ini karena mampu memberikan performa prediksi yang paling akurat di antara model lainnya. Random Forest sendiri dikenal sebagai algoritma yang cukup andal karena menggabungkan banyak decision tree untuk menghasilkan prediksi yang stabil dan kuat terhadap overfitting.<br>
 Meskipun Naive Bayes dan SVM juga menunjukkan performa yang baik, keduanya masih berada sedikit di bawah Random Forest. Sementara itu, KNN, walaupun sederhana dan mudah dipahami, memiliki akurasi paling rendah dari keempat model yang diuji.
 <br>
-Dengan mempertimbangkan faktor akurasi dan keandalan model, maka Random Forest dipilih sebagai model utama untuk memprediksi kualitas apel dalam studi ini.
+Dengan mempertimbangkan faktor akurasi dan keandalan model, maka Random Forest dipilih sebagai model utama untuk memprediksi kualitas buah anggur dalam studi ini.
+
+Berdasarkan hasil dari evaluasi model ini sudah menjawab problem statement yang pertama, yaitu model random forest lah yang memiliki akurasi tertinggi untuk studi kasus klasifikasi buah anggur ini. Kemudian untuk problem statement ke-2, model machine learning yang dilatih menggunakan dataset Grape Quality dapat membantu petani meningkatkan kualitas buah anggur dengan memprediksi kualitas anggur berdasarkan berbagai faktor seperti ukuran, warna, kadar gula, pH, dan tingkat kematangan buah. Dengan mengetahui kategori kualitas anggur sebelum panen, petani bisa melakukan beberapa hal berikut:
+- Memanen anggur pada waktu terbaik untuk mendapatkan kualitas tertinggi.
+- Menyesuaikan pemupukan, penyiraman, atau pengendalian hama.
+- Menghindari panen buah yang kurang berkualitas atau terlalu matang. Dengan ini bisa membantu petani meningkatkan hasil panen dan memaksimalkan keuntungan.
+<br>
+Dari hasil evaluasi ini juga sudah berhasil mencapai setiap goals yang diharapkan.<br>
+- Pertama, saya sudah berhasil membuat beberapa model machine learning yang dapat mengklasifikasikan kualitas buah anggur berdasarkan dataset yang terdiri dari baris dan kolom, dalam hal ini saya mengembangkan empat model machine learning dengan empat algoritma yang berbeda.
+- Kedua, Saya sudah membandingkan keempat model ini dan menemukan 1 model terbaik yaitu model yang memiliki akurasi paling tinggi, pada hasil evaluasi ini adalah model dengan algoritma Random Forest yang memiliki akurasi sebesar 0.955.
+
+Setiap solution statements yang saya rencanakan telah berdampak pada hasil evaluasi model ini. Pertama, berkaitan dengan proses Exploratory Data Analysis (EDA). Saya melakukan tahap ini untuk mengidentifikasi korelasi antar variabel. Temuan dari tahap ini kemudian menjadi dasar dalam penentuan fitur apa saja yang digunakan untuk pelatihan model machine learning sehingga bisa saya bisa mengembangkan model machine learning untuk klasifikasi dengan akurasi yang cukup tinggi, seperti yang sudah dipaparkan di atas. Kedua, dalam proyek ini saya mengimplementasikan beberapa model agar bisa dibandingkan dan ditentukan model mana yang paling tepat digunakan dalam prediksi kategori kualitas buah anggur, dalam hal ini model yang memiliki akurasi paling tinggi adalah Random Forest.
 
 ## Referensi
-1. Digitani IPB (2024). MENGENAL TANAMAN ANGGUR: MORFOLOGI DAN KARAKTERISTIKNYA
-2. Ciputra, A., Rachmawanto, E. H., & 
-Susanto, A. (2018). Klasifikasi 
-Tingkat Kematangan Buah Apel 
-Manalagi Dengan Algoritma Naive 
-Bayes Dan Ekstraksi Fitur Citra 
-Digital. Simetris: Jurnal Teknik 
-Mesin, Elektro Dan Ilmu 
-Komputer, 9(1), 465-472. 
+[1] Digitani IPB (2024). MENGENAL TANAMAN ANGGUR: MORFOLOGI DAN KARAKTERISTIKNYA.
+
+[2] Saputro, W., Sumantri, D. B., & Komputer, I. (2022). Implementasi citra digital dalam klasifikasi jenis buah anggur dengan algoritma K-Nearest Neighbors (KNN) dan data augmentasi. INTECOMS: Journal of Information Technology and Computer Science, 5(2), 248-253. 
